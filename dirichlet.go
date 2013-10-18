@@ -1,10 +1,11 @@
 package stat
 
 import (
-	. "code.google.com/p/go-fn/fn"
+	"code.google.com/p/go-fn/fn"
 )
 
-func Dirichlet_PDF(α []float64) func(θ []float64) float64 {
+// DirichletPDF is dirichlet distribution's pdf
+func DirichletPDF(α []float64) func(θ []float64) float64 {
 	return func(θ []float64) float64 {
 		if len(θ) != len(α) {
 			return 0
@@ -16,14 +17,16 @@ func Dirichlet_PDF(α []float64) func(θ []float64) float64 {
 				return 0
 			}
 			l *= pow(θ[i], α[i]-1)
-			l /= Γ(α[i])
+			l /= fn.Γ(α[i])
 			totalα += α[i]
 		}
-		l *= Γ(totalα)
+		l *= fn.Γ(totalα)
 		return l
 	}
 }
-func Dirichlet_LnPDF(α []float64) func(x []float64) float64 {
+
+// DirichletLnPDF is dirichlet distribution's lnpdf
+func DirichletLnPDF(α []float64) func(x []float64) float64 {
 	return func(x []float64) float64 {
 		if len(x) != len(α) {
 			return negInf
@@ -35,13 +38,15 @@ func Dirichlet_LnPDF(α []float64) func(x []float64) float64 {
 				return negInf
 			}
 			l += (α[i] - 1) * log(x[i])
-			l -= LnΓ(α[i])
+			l -= fn.LnΓ(α[i])
 			totalα += α[i]
 		}
-		l += LnΓ(totalα)
+		l += fn.LnΓ(totalα)
 		return l
 	}
 }
+
+// NextDirichlet return value in dirichlet distribution
 func NextDirichlet(α []float64) []float64 {
 	x := make([]float64, len(α))
 	sum := fZero
@@ -54,6 +59,8 @@ func NextDirichlet(α []float64) []float64 {
 	}
 	return x
 }
+
+// Dirichlet is dirichlet distribution function
 func Dirichlet(α []float64) func() []float64 {
 	return func() []float64 { return NextDirichlet(α) }
 }

@@ -23,10 +23,9 @@ func checkMatrixNormal(M, Omega, Sigma *mx.DenseMatrix) {
 	}
 }
 
-/*
- M is the mean, Omega is the row covariance, Sigma is the column covariance.
-*/
-func MatrixNormal_PDF(M, Omega, Sigma *mx.DenseMatrix) func(A *mx.DenseMatrix) float64 {
+// MatrixNormalPDF is matrixnormal distribution's pdf
+// M is the mean, Omega is the row covariance, Sigma is the column covariance.
+func MatrixNormalPDF(M, Omega, Sigma *mx.DenseMatrix) func(A *mx.DenseMatrix) float64 {
 	checkMatrixNormal(M, Omega, Sigma)
 	pf := float64(M.Rows())
 	mf := float64(M.Cols())
@@ -74,7 +73,9 @@ func MatrixNormal_PDF(M, Omega, Sigma *mx.DenseMatrix) func(A *mx.DenseMatrix) f
 		return
 	}
 }
-func MatrixNormal_LnPDF(M, Omega, Sigma *mx.DenseMatrix) func(A *mx.DenseMatrix) float64 {
+
+// MatrixNormalLnPDF is matrix distribution's normal ln pdf
+func MatrixNormalLnPDF(M, Omega, Sigma *mx.DenseMatrix) func(A *mx.DenseMatrix) float64 {
 	checkMatrixNormal(M, Omega, Sigma)
 
 	pf := float64(M.Rows())
@@ -123,6 +124,8 @@ func MatrixNormal_LnPDF(M, Omega, Sigma *mx.DenseMatrix) func(A *mx.DenseMatrix)
 		return
 	}
 }
+
+// MatrixNormal is MatrixNormal distribution
 func MatrixNormal(M, Omega, Sigma *mx.DenseMatrix) func() (X *mx.DenseMatrix) {
 	checkMatrixNormal(M, Omega, Sigma)
 
@@ -135,6 +138,8 @@ func MatrixNormal(M, Omega, Sigma *mx.DenseMatrix) func() (X *mx.DenseMatrix) {
 		return
 	}
 }
+
+// NextMatrixNormal return random value in matrixnormal distribution
 func NextMatrixNormal(M, Omega, Sigma *mx.DenseMatrix) (X *mx.DenseMatrix) {
 	return MatrixNormal(M, Omega, Sigma)()
 }

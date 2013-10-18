@@ -1,32 +1,34 @@
 package stat
 
 import (
-	. "code.google.com/p/go-fn/fn"
+	"code.google.com/p/go-fn/fn"
 )
 
-// Probability Mass Function for the Binomial distribution
-func Binomial_PMF(ρ float64, n int64) func(i int64) float64 {
+// BinomialPMF is Binomial distribution's Probability Mass Function
+func BinomialPMF(ρ float64, n int64) func(i int64) float64 {
 	return func(i int64) float64 {
 		p := pow(ρ, float64(i)) * pow(1-ρ, float64(n-i))
-		p *= Γ(float64(n+1)) / (Γ(float64(i+1)) * Γ(float64(n-i+1)))
+		p *= fn.Γ(float64(n+1)) / (fn.Γ(float64(i+1)) * fn.Γ(float64(n-i+1)))
 		return p
 	}
 }
 
-func Binomial_PMF_At(ρ float64, n, k int64) float64 {
-	pmf := Binomial_PMF(ρ, n)
+// BinomialPMFAt return value of Binomial distribution's Probability Mass Function at k
+func BinomialPMFAt(ρ float64, n, k int64) float64 {
+	pmf := BinomialPMF(ρ, n)
 	return pmf(k)
 }
 
-// Natural logarithm of Probability Mass Function for the Binomial distribution
-func Binomial_LnPMF(ρ float64, n int64) func(i int64) float64 {
+// BinomialLnPMF is  Natural logarithm of Probability Mass Function for the Binomial distribution
+func BinomialLnPMF(ρ float64, n int64) func(i int64) float64 {
 	return func(i int64) float64 {
 		p := log(ρ)*float64(i) + log(1-ρ)*float64(n-i)
-		p += LnΓ(float64(n+1)) - LnΓ(float64(i+1)) - LnΓ(float64(n-i+1))
+		p += fn.LnΓ(float64(n+1)) - fn.LnΓ(float64(i+1)) - fn.LnΓ(float64(n-i+1))
 		return p
 	}
 }
 
+// NextBinomial return value in binomial distribution
 func NextBinomial(ρ float64, n int64) (result int64) {
 	for i := int64(0); i <= n; i++ {
 		result += NextBernoulli(ρ)
@@ -34,16 +36,17 @@ func NextBinomial(ρ float64, n int64) (result int64) {
 	return
 }
 
+// Binomial is binomial distribution function
 func Binomial(ρ float64, n int64) func() int64 {
 	return func() int64 { return NextBinomial(ρ, n) }
 }
 
-// Cumulative Distribution Function for the Binomial distribution, trivial implementation
-func Binomial_CDF_trivial(ρ float64, n int64) func(k int64) float64 {
+// BinomialCDFtrivial is Cumulative Distribution Function for the Binomial distribution, trivial implementation
+func BinomialCDFtrivial(ρ float64, n int64) func(k int64) float64 {
 	return func(k int64) float64 {
-		var p float64 = 0
+		var p float64
 		var i int64
-		pmf := Binomial_PMF(ρ, n)
+		pmf := BinomialPMF(ρ, n)
 		for i = 0; i <= k; i++ {
 			p += pmf(i)
 		}
@@ -51,15 +54,16 @@ func Binomial_CDF_trivial(ρ float64, n int64) func(k int64) float64 {
 	}
 }
 
-// Cumulative Distribution Function for the Binomial distribution
-func Binomial_CDF(ρ float64, n int64) func(k int64) float64 {
+// BinomialCDF is Cumulative Distribution Function for the Binomial distribution
+func BinomialCDF(ρ float64, n int64) func(k int64) float64 {
 	return func(k int64) float64 {
-		p := Beta_CDF_At((float64)(n-k), (float64)(k+1), 1-ρ)
+		p := BetaCDFAt((float64)(n-k), (float64)(k+1), 1-ρ)
 		return p
 	}
 }
 
-func Binomial_CDF_At(ρ float64, n, k int64) float64 {
-	cdf := Binomial_CDF(ρ, n)
+// BinomialCDFAt return value of binomial distribution's Cumulative Distribution Function at k
+func BinomialCDFAt(ρ float64, n, k int64) float64 {
+	cdf := BinomialCDF(ρ, n)
 	return cdf(k)
 }

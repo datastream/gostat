@@ -3,16 +3,15 @@
 package stat
 
 import (
-	. "code.google.com/p/go-fn/fn"
+	"code.google.com/p/go-fn/fn"
 	"fmt"
 	"math"
 )
 
 func bisect(x, p, a, b, xtol, ptol float64) float64 {
-
 	var x0, x1, px float64
 
-	cdf := Beta_PDF(a, b)
+	cdf := BetaPDF(a, b)
 
 	for math.Abs(x1-x0) > xtol {
 		px = cdf(x)
@@ -30,7 +29,6 @@ func bisect(x, p, a, b, xtol, ptol float64) float64 {
 }
 
 func betaContinuedFraction(α, β, x float64) float64 {
-
 	var aa, del, res, qab, qap, qam, c, d, m2, m, acc float64
 	var i int64
 	const eps = 2.2204460492503131e-16
@@ -84,9 +82,10 @@ func betaContinuedFraction(α, β, x float64) float64 {
 	return -1.00
 }
 
-func Beta_PDF(α float64, β float64) func(x float64) float64 {
+// BetaPDF is Beta-distribution(α, β)'s pdf
+func BetaPDF(α float64, β float64) func(x float64) float64 {
 	dα := []float64{α, β}
-	dirPDF := Dirichlet_PDF(dα)
+	dirPDF := DirichletPDF(dα)
 	return func(x float64) float64 {
 		if 0 > x || x > 1 {
 			return 0
@@ -95,9 +94,11 @@ func Beta_PDF(α float64, β float64) func(x float64) float64 {
 		return dirPDF(dx)
 	}
 }
-func Beta_LnPDF(α float64, β float64) func(x float64) float64 {
+
+// BetaLnPDF is Beta-distribution(α, β)'s ln pdf
+func BetaLnPDF(α float64, β float64) func(x float64) float64 {
 	dα := []float64{α, β}
-	dirLnPDF := Dirichlet_LnPDF(dα)
+	dirLnPDF := DirichletLnPDF(dα)
 	return func(x float64) float64 {
 		if 0 > x || x > 1 {
 			return negInf
@@ -106,26 +107,30 @@ func Beta_LnPDF(α float64, β float64) func(x float64) float64 {
 		return dirLnPDF(dx)
 	}
 }
+
+// NextBeta return one value in Beta-distribution(α, β)
 func NextBeta(α float64, β float64) float64 {
 	dα := []float64{α, β}
 	return NextDirichlet(dα)[0]
 }
+
+// Beta is Beta-distribution(α, β)
 func Beta(α float64, β float64) func() float64 {
 	return func() float64 { return NextBeta(α, β) }
 }
 
-// Value of PDF of Beta distribution(α, β) at x
-func Beta_PDF_At(α, β, x float64) float64 {
-	pdf := Beta_PDF(α, β)
+// BetaPDFAt return Value of PDF of Beta distribution(α, β) at x
+func BetaPDFAt(α, β, x float64) float64 {
+	pdf := BetaPDF(α, β)
 	return pdf(x)
 }
 
-// CDF of Beta-distribution
-func Beta_CDF(α float64, β float64) func(x float64) float64 {
+// BetaCDF is Beta-distribution(α, β)'s CDF
+func BetaCDF(α float64, β float64) func(x float64) float64 {
 	return func(x float64) float64 {
-		//func Beta_CDF(α , β , x float64) float64 {
+		//func BetaCDF(α , β , x float64) float64 {
 		var y, res float64
-		y = math.Exp(LnΓ(α+β) - LnΓ(α) - LnΓ(β) + α*math.Log(x) + β*math.Log(1.0-x))
+		y = math.Exp(fn.LnΓ(α+β) - fn.LnΓ(α) - fn.LnΓ(β) + α*math.Log(x) + β*math.Log(1.0-x))
 		switch {
 		case x == 0:
 			res = 0.0
@@ -141,15 +146,15 @@ func Beta_CDF(α float64, β float64) func(x float64) float64 {
 	}
 }
 
-// Value of CDF of Beta distribution(α, β) at x
-func Beta_CDF_At(α, β, x float64) float64 {
+// BetaCDFAt is Beta-distribution(α, β)'s cdf at x
+func BetaCDFAt(α, β, x float64) float64 {
 	var res float64
-	cdf := Beta_CDF(α, β)
+	cdf := BetaCDF(α, β)
 	res = cdf(x)
 	return res
 }
 
-// BetaInv_CDF_For() evaluates inverse CDF of Beta distribution(α, β) for probability p
+// BetaInvCDFFor() evaluates inverse CDF of Beta distribution(α, β) for probability p
 //
 // References:
 //
@@ -162,7 +167,7 @@ func Beta_CDF_At(α, β, x float64) float64 {
 // Cornish-Fisher type," Annals of Mathematical Statistics, volume 39,
 // number 8, August 1968, pages 1264-1273.
 /*
-func BetaInv_CDF_For(α float64, β float64, p float64) float64 {
+func BetaInvCDFFor(α float64, β float64, p float64) float64 {
 	var res float64
 	switch {
 	case (p < 0.0 || p > 1.0):
@@ -179,15 +184,15 @@ func BetaInv_CDF_For(α float64, β float64, p float64) float64 {
 	case p == 1.0:
 		res = 1.0
 	case p > 0.5:
-		res = 1 - cdf_beta_Pinv(1-p, β, α)
+		res = 1 - cdfBetaPinv(1-p, β, α)
 	default:
-		res = cdf_beta_Pinv(α, β, p)
+		res = cdfBetaPinv(α, β, p)
 	}
 	return res
 
 }
 
-func cdf_beta_Pinv(α float64, β float64, p float64) float64 {
+func cdfBetaPinv(α float64, β float64, p float64) float64 {
 	var x, mean, lg_ab, lg_a, lg_b, lx, lambda, dP, phi, step, step0, step1 float64
 	var n int64 = 0
 //	const tol = 1.4901161193847656e-08
@@ -197,9 +202,9 @@ func cdf_beta_Pinv(α float64, β float64, p float64) float64 {
 	if p < 0.1 {
 		 // small x
 
-		lg_ab = LnΓ(α + β)
-		lg_a = LnΓ(α)
-		lg_b = LnΓ(β)
+		lg_ab = fn.LnΓ(α + β)
+		lg_a = fn.LnΓ(α)
+		lg_b = fn.LnΓ(β)
 		lx = (math.Log(α) + lg_a + lg_b - lg_ab + math.Log(p)) / α
 		if lx <= 0 {
 			x = math.Exp(lx)              // first approximation
@@ -224,8 +229,8 @@ func cdf_beta_Pinv(α float64, β float64, p float64) float64 {
 end:
 
 	for math.Abs(step0) > 1e-11*x {
-		dP = p - Beta_CDF_At(α, β, x)
-		phi = Beta_PDF_At(α, β, x)
+		dP = p - BetaCDFAt(α, β, x)
+		phi = BetaPDFAt(α, β, x)
 
 		if dP == 0.0 || n > 64 {
 			break end
@@ -251,7 +256,7 @@ end:
 
 		if math.Abs(dP) > tol*p {
 //			fmt.Println("failed at: α =",α , "  β =", β, "  p =", p) // just for testing purposes; delete this line and uncomment next one
-//			panic(fmt.Sprintf("cdf_beta_Pinv() failed to converge"))
+//			panic(fmt.Sprintf("cdfBetaPinv() failed to converge"))
 			 x=999.00; break end
 		}
 	}
@@ -259,6 +264,7 @@ end:
 }
 */
 
+// BetaInvCDF is Beta-distribution(α, β)'s inv cdf
 // Inverse of the cumulative beta probability density function for a given probability.
 //
 // p: Probability associated with the beta distribution
@@ -266,14 +272,16 @@ end:
 // β: Parameter of the distribution
 // A: Optional lower bound to the interval of x
 // B: Optional upper bound to the interval of x
-func BetaInv_CDF(α, β float64) func(p float64) float64 {
+func BetaInvCDF(α, β float64) func(p float64) float64 {
 	return func(p float64) float64 {
-		var x float64 = 0
-		var a float64 = 0
-		var b float64 = 1
-		var A float64 = 0
-		var B float64 = 1
-		var precision float64 = 1e-9
+		var x float64
+		var a float64
+		var b float64
+		var A float64
+		var B float64
+		b = 1
+		B = 1
+		precision := 1e-9
 		if p < 0.0 {
 			panic(fmt.Sprintf("p < 0"))
 		}
@@ -289,7 +297,7 @@ func BetaInv_CDF(α, β float64) func(p float64) float64 {
 
 		for (b - a) > precision {
 			x = (a + b) / 2
-			if BetaIncReg(α, β, x) > p {
+			if fn.BetaIncReg(α, β, x) > p {
 				b = x
 			} else {
 				a = x
@@ -303,7 +311,8 @@ func BetaInv_CDF(α, β float64) func(p float64) float64 {
 	}
 }
 
-func BetaInv_CDF_For(α, β, p float64) float64 {
-	cdf := BetaInv_CDF(α, β)
+// BetaInvCDFFor is Beta-distribution(α, β)'s inv cdf at p
+func BetaInvCDFFor(α, β, p float64) float64 {
+	cdf := BetaInvCDF(α, β)
 	return cdf(p)
 }

@@ -1,42 +1,42 @@
-// Inverse Gamma distribution (not to be confused with Inverse CDF of Gamma distribution)
-
 package stat
 
+// Inverse Gamma distribution (not to be confused with Inverse CDF of Gamma distribution)
+
 import (
-	. "code.google.com/p/go-fn/fn"
+	"code.google.com/p/go-fn/fn"
 	"math"
 )
 
-// Inverse Gamma distribution: probability density function
-func InvGamma_PDF(a, b float64) func(x float64) float64 {
+// InvGammaPDF is Inverse Gamma distribution: probability density function
+func InvGammaPDF(a, b float64) func(x float64) float64 {
 	return func(x float64) float64 {
-		return math.Exp(a*math.Log(b) - LnΓ(a) - (a+1)*math.Log(x) - b*1.0/x)
+		return math.Exp(a*math.Log(b) - fn.LnΓ(a) - (a+1)*math.Log(x) - b*1.0/x)
 	}
 }
 
-// Inverse Gamma distribution: natural logarithm of the probability density function
-func InvGamma_LnPDF(a, b float64) func(x float64) float64 {
+// InvGammaLnPDF is Inverse Gamma distribution's natural logarithm of the probability density function
+func InvGammaLnPDF(a, b float64) func(x float64) float64 {
 	return func(x float64) float64 {
-		return a*math.Log(b) - LnΓ(a) - (a+1)*math.Log(x) - b*1.0/x
+		return a*math.Log(b) - fn.LnΓ(a) - (a+1)*math.Log(x) - b*1.0/x
 	}
 }
 
-// Inverse Gamma distribution: probability density function at x
-func InvGamma_PDF_At(a, b float64) func(x float64) float64 {
+// InvGammaPDFAt return Inverse Gamma distribution's probability density function at x
+func InvGammaPDFAt(a, b float64) func(x float64) float64 {
 	return func(x float64) float64 {
-		return math.Exp(a*math.Log(b) - LnΓ(a) - (a+1)*math.Log(x) - b*1.0/x)
+		return math.Exp(a*math.Log(b) - fn.LnΓ(a) - (a+1)*math.Log(x) - b*1.0/x)
 	}
 }
 
-// Inverse Gamma distribution: cumulative distribution function
-func InvGamma_CDF(a, b float64) func(x float64) float64 {
+// InvGammaCDF is Inverse Gamma distribution's cumulative distribution function
+func InvGammaCDF(a, b float64) func(x float64) float64 {
 	return func(x float64) float64 {
-		return 1 - IΓ(a, b*1.0/x)
+		return 1 - fn.IΓ(a, b*1.0/x)
 	}
 }
 
-// Inverse Gamma distribution: value of the cumulative distribution function at x
-func InvGamma_CDF_At(a, b, x float64) float64 {
-	cdf := InvGamma_CDF(a, b)
+// InvGammaCDFAt is Inverse Gamma distribution's value of the cumulative distribution function at x
+func InvGammaCDFAt(a, b, x float64) float64 {
+	cdf := InvGammaCDF(a, b)
 	return cdf(x)
 }

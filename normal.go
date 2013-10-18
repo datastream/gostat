@@ -5,7 +5,7 @@ import (
 	"math/rand"
 )
 
-func rat_eval(a []float64, na int64, b []float64, nb int64, x float64) float64 {
+func ratEval(a []float64, na int64, b []float64, nb int64, x float64) float64 {
 	var (
 		i, j    int64
 		u, v, r float64
@@ -38,7 +38,7 @@ func small(q float64) float64 {
 		r, x float64
 	)
 	r = 0.180625 - q*q
-	x = q * rat_eval(a, 8, b, 8, r)
+	x = q * ratEval(a, 8, b, 8, r)
 
 	return x
 }
@@ -53,7 +53,7 @@ func intermediate(r float64) float64 {
 
 		x float64
 	)
-	x = rat_eval(a, 8, b, 8, (r - 1.6))
+	x = ratEval(a, 8, b, 8, (r - 1.6))
 	return x
 }
 
@@ -67,61 +67,64 @@ func tail(r float64) float64 {
 
 		x float64
 	)
-	x = rat_eval(a, 8, b, 8, (r - 5.0))
+	x = ratEval(a, 8, b, 8, (r - 5.0))
 	return x
 }
 
-func Normal_PDF(μ float64, σ float64) func(x float64) float64 {
-	normal_normalizer := 0.3989422804014327 / σ
-	return func(x float64) float64 { return normal_normalizer * exp(-1*(x-μ)*(x-μ)/(2*σ*σ)) }
+// NormalPDF is normal distribution's pdf
+func NormalPDF(μ float64, σ float64) func(x float64) float64 {
+	normalNormalizer := 0.3989422804014327 / σ
+	return func(x float64) float64 { return normalNormalizer * exp(-1*(x-μ)*(x-μ)/(2*σ*σ)) }
 }
 
-func Normal_LnPDF(μ float64, σ float64) func(x float64) float64 {
-	ln_normal_normalizer := -0.91893853320467267 - log(σ)
-	return func(x float64) float64 { return ln_normal_normalizer - (x-μ)*(x-μ)/(2*σ*σ) }
+// NormalLnPDF is normal distribution's lnpdf
+func NormalLnPDF(μ float64, σ float64) func(x float64) float64 {
+	lnNormalNormalizer := -0.91893853320467267 - log(σ)
+	return func(x float64) float64 { return lnNormalNormalizer - (x-μ)*(x-μ)/(2*σ*σ) }
 }
 
+// NextNormal return random value in normal distribution
 func NextNormal(μ float64, σ float64) float64 { return rand.NormFloat64()*σ + μ }
 
+// Normal is normal distribution function
 func Normal(μ, σ float64) func() float64 {
 	return func() float64 { return NextNormal(μ, σ) }
 }
 
-// Cumulative Distribution Function for the Normal distribution
-func Normal_CDF(μ, σ float64) func(x float64) float64 {
+// NormalCDF is Cumulative Distribution Function for the Normal distribution
+func NormalCDF(μ, σ float64) func(x float64) float64 {
 	return func(x float64) float64 { return ((1.0 / 2.0) * (1 + math.Erf((x-μ)/(σ*math.Sqrt2)))) }
 }
 
-// Inverse CDF of Normal distribution for probability p //// ??? only *sigma? from GSL
-func NormalInv_CDF_For(p, sigma float64) float64 {
-	return sigma * Z_InvCDF_For(p)
+// NormalInvCDFFor is Inverse CDF of Normal distribution for probability p //// ??? only *sigma? from GSL
+func NormalInvCDFFor(p, sigma float64) float64 {
+	return sigma * ZInvCDFFor(p)
 }
 
-// Probability Density Function for the Standard Normal distribution
-func Z_PDF() func(float64) float64 {
-	return Normal_PDF(0, 1)
+// ZPDF is Probability Density Function for the Standard Normal distribution
+func ZPDF() func(float64) float64 {
+	return NormalPDF(0, 1)
 }
 
-// Cumulative Distribution Function for the Standard Normal distribution
-func Z_CDF() func(float64) float64 {
-	return Normal_CDF(0, 1)
+// ZCDF is Cumulative Distribution Function for the Standard Normal distribution
+func ZCDF() func(float64) float64 {
+	return NormalCDF(0, 1)
 }
 
-// Probability Density of the Standard Normal distribution at x
-func Z_PDF_At(x float64) float64 {
-	pdf := Normal_PDF(0, 1)
+// ZPDFAt is Probability Density of the Standard Normal distribution at x
+func ZPDFAt(x float64) float64 {
+	pdf := NormalPDF(0, 1)
 	return pdf(x)
 }
 
-// Cumulative Probability of the Standard Normal distribution at x
-func Z_CDF_At(x float64) float64 {
-	cdf := Normal_CDF(0, 1)
+// ZCDFAt is Cumulative Probability of the Standard Normal distribution at x
+func ZCDFAt(x float64) float64 {
+	cdf := NormalCDF(0, 1)
 	return cdf(x)
 }
 
-// Inverse CDF of Standard Normal distribution for probability p
-func Z_InvCDF_For(p float64) float64 {
-
+// ZInvCDFFor is Inverse CDF of Standard Normal distribution for probability p
+func ZInvCDFFor(p float64) float64 {
 	var r, x, pp, dp float64
 
 	dp = p - 0.5

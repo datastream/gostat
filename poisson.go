@@ -3,42 +3,43 @@
 package stat
 
 import (
-	. "code.google.com/p/go-fn/fn"
+	"code.google.com/p/go-fn/fn"
 	"math"
 )
 
+// PoissonLnPMF is poisson distribution's lnpmf
 /*
-func Poisson_LnPMF(λ float64) (foo func(i int64) float64) {
-	pmf := Poisson_PMF(λ)
+func PoissonLnPMF(λ float64) (foo func(i int64) float64) {
+	pmf := PoissonPMF(λ)
 	return func(i int64) (p float64) {
 		return log(pmf(i))
 		//p = -λ +log(λ)*float64(i)
-		//x := log(Γ(float64(i)+1))
+		//x := log(fn.Γ(float64(i)+1))
 		//_ = x
-		//p -= LnΓ(float64(i)+1)
+		//p -= fn.LnΓ(float64(i)+1)
 		//return p
 	}
 }
 */
-func Poisson_LnPMF(λ float64) func(k int64) float64 {
+func PoissonLnPMF(λ float64) func(k int64) float64 {
 	return func(k int64) (p float64) {
 		i := float64(k)
 		a := log(λ) * i
-		b := log(Γ(i + 1))
+		b := log(fn.Γ(i + 1))
 		p = a - b - λ
 		return p
 	}
 }
 
 /*
-func Poisson_PMF(λ float64) func(k int64) float64 {
+func PoissonPMF(λ float64) func(k int64) float64 {
 	return func(k int64) float64 {
 		p := NextExp(-λ) * pow(λ, float64(k)) / Γ(float64(k)+1)
 		return p
 	}
 }
 
-func Poisson_PMF(λ float64) func(k int64) float64 {
+func PoissonPMF(λ float64) func(k int64) float64 {
 	return func(k int64) float64 {
 		p := math.Exp(-λ) * pow(λ, float64(k)) / Γ(float64(k)+1)
 		return p
@@ -46,19 +47,22 @@ func Poisson_PMF(λ float64) func(k int64) float64 {
 }
 */
 
-func Poisson_PMF(λ float64) func(k int64) float64 {
-	pmf := Poisson_LnPMF(λ)
+// PoissonPMF is poisson distribution's pmf
+func PoissonPMF(λ float64) func(k int64) float64 {
+	pmf := PoissonLnPMF(λ)
 	return func(k int64) float64 {
 		p := math.Exp(pmf(k))
 		return p
 	}
 }
 
-func Poisson_PMF_At(λ float64, k int64) float64 {
-	pmf := Poisson_PMF(λ)
+// PoissonPMFAt is poisson distribution's pmf at k
+func PoissonPMFAt(λ float64, k int64) float64 {
+	pmf := PoissonPMF(λ)
 	return pmf(k)
 }
 
+// NextPoisson return value in poisson distribution
 func NextPoisson(λ float64) int64 {
 	// this can be improved upon
 	i := iZero
@@ -69,17 +73,20 @@ func NextPoisson(λ float64) int64 {
 	}
 	return i
 }
+
+// Poisson is poisson distribution function
 func Poisson(λ float64) func() int64 {
 	return func() int64 {
 		return NextPoisson(λ)
 	}
 }
 
-func Poisson_CDF(λ float64) func(k int64) float64 {
+// PoissonCDF is poisson distribution's cdf
+func PoissonCDF(λ float64) func(k int64) float64 {
 	return func(k int64) float64 {
-		var p float64 = 0
+		var p float64
 		var i int64
-		pmf := Poisson_PMF(λ)
+		pmf := PoissonPMF(λ)
 		for i = 0; i <= k; i++ {
 			p += pmf(i)
 		}
@@ -87,21 +94,24 @@ func Poisson_CDF(λ float64) func(k int64) float64 {
 	}
 }
 
-func Poisson_CDF_a(λ float64) func(k int64) float64 { // analytic solution, less precision
+// PoissonCDFA is poisson distribution's cdf analytic solution
+func PoissonCDFA(λ float64) func(k int64) float64 { // analytic solution, less precision
 	return func(k int64) float64 {
-		p := math.Exp(math.Log(IΓint(k+1, λ)) - (LnFact(float64(k))))
+		p := math.Exp(math.Log(fn.IΓint(k+1, λ)) - (fn.LnFact(float64(k))))
 		return p
 	}
 }
 
-func Poisson_CDF_At(λ float64, k int64) float64 {
-	cdf := Poisson_CDF(λ)
+// PoissonCDFAt return poisson distribution's cdf at k
+func PoissonCDFAt(λ float64, k int64) float64 {
+	cdf := PoissonCDF(λ)
 	return cdf(k)
 }
 
-func LnPoisson_CDF_a(λ float64) func(k int64) float64 { // analytic solution, less precision
+// LnPoissonCDFA is ln poisson distribution cdf analytic solution
+func LnPoissonCDFA(λ float64) func(k int64) float64 { // analytic solution, less precision
 	return func(k int64) float64 {
 		k1 := (float64)(k + 1)
-		return log(IΓ(k1, λ)) - LnFact(float64(k))
+		return log(fn.IΓ(k1, λ)) - fn.LnFact(float64(k))
 	}
 }

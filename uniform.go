@@ -6,7 +6,8 @@ import (
 	"math/rand"
 )
 
-func Uniform_PDF() func(x float64) float64 {
+// UniformPDF is uniform distribution's pdf
+func UniformPDF() func(x float64) float64 {
 	return func(x float64) float64 {
 		if 0 <= x && x <= 1 {
 			return 1
@@ -15,7 +16,8 @@ func Uniform_PDF() func(x float64) float64 {
 	}
 }
 
-func Uniform_LnPDF() func(x float64) float64 {
+// UniformLnPDF is uniform distribution's lnpdf
+func UniformLnPDF() func(x float64) float64 {
 	return func(x float64) float64 {
 		if 0 <= x && x <= 1 {
 			return 0
@@ -24,6 +26,8 @@ func Uniform_LnPDF() func(x float64) float64 {
 	}
 }
 
-var NextUniform func() float64 = rand.Float64
+// NextUniform is rand float64
+var NextUniform = rand.Float64
 
+// Uniform is uniform distribution function
 func Uniform() func() float64 { return NextUniform }

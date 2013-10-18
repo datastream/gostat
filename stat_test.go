@@ -1,7 +1,7 @@
 package stat
 
 import (
-	. "code.google.com/p/go-fn/fn"
+	"code.google.com/p/go-fn/fn"
 	"fmt"
 	"math"
 	"math/rand"
@@ -9,8 +9,7 @@ import (
 	"time"
 )
 
-var Seed func(int64) = rand.Seed
-
+// XTestDir function
 func XTestDir(t *testing.T) {
 	α := []float64{4, 5, 6}
 	dgen := Dirichlet(α)
@@ -24,6 +23,7 @@ func XTestDir(t *testing.T) {
 	fmt.Printf("%v\n", counts)
 }
 
+// TestNullWeights for choice distribution
 func TestNullWeights(t *testing.T) {
 	n := int64(10)
 	weights := make([]float64, n)
@@ -33,6 +33,7 @@ func TestNullWeights(t *testing.T) {
 	}
 }
 
+// TestLnGamma function
 func TestLnGamma(t *testing.T) {
 	acc := 0.0000001
 	check := func(x, y float64) bool {
@@ -43,14 +44,14 @@ func TestLnGamma(t *testing.T) {
 	}
 	for i := 0; i < 100; i++ {
 		x := NextGamma(10, 10)
-		g1 := LnΓ(x)
+		g1 := fn.LnΓ(x)
 		g2, _ := math.Lgamma(x)
 		if !check(g1, g2) {
 			t.Error(fmt.Sprintf("For %v: %v vs %v", x, g1, g2))
 		}
 	}
 	//var start int64
-	Seed(10)
+	rand.Seed(10)
 	start := time.Now()
 	for i := 0; i < 1e6; i++ {
 		x := NextGamma(10, 10)
@@ -60,17 +61,18 @@ func TestLnGamma(t *testing.T) {
 	duration2 := float64(now.Sub(start)) / 1e9
 
 	//duration2 := float64(time.Now()-start) / 1e9
-	Seed(10)
+	rand.Seed(10)
 	start = time.Now()
 	for i := 0; i < 1e6; i++ {
 		x := NextGamma(10, 10)
-		LnΓ(x)
+		fn.LnΓ(x)
 	}
 	now = time.Now()
 	duration1 := float64(now.Sub(start)) / 1e9
 	fmt.Printf("Mine was %f\nTheirs was %f\n", duration1, duration2)
 }
 
+// XTestGen function
 func XTestGen(t *testing.T) {
 	fmt.Printf("NextUniform => %f\n", NextUniform())
 	fmt.Printf("NextExp => %f\n", NextExp(1.5))
@@ -99,7 +101,7 @@ func XTestGen(t *testing.T) {
 
 /*
 // test for Binomial p confidence interval  // failed due to some unknown bug
-func TestBinomP_CI(t *testing.T) {
+func TestBinomPCI(t *testing.T) {
 	fmt.Println("test for Binomial p confidence interval")
 	var n int64
 	var k, nn, p, alpha, low, high, low2, high2 float64
@@ -111,7 +113,7 @@ func TestBinomP_CI(t *testing.T) {
 	alpha=0.1
 	low2=0.04
 	high2=0.21
-	low, high =  Binom_p_ConfI(n, p, alpha)
+	low, high =  BinomPConfI(n, p, alpha)
 	fmt.Println(low, " = ", low2, "\t", high, " = ",  high2)
 }
 */

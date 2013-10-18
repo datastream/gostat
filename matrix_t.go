@@ -1,7 +1,7 @@
 package stat
 
 import (
-	. "code.google.com/p/go-fn/fn"
+	"code.google.com/p/go-fn/fn"
 	"fmt"
 	mx "github.com/skelterjohn/go.matrix"
 	"math"
@@ -27,7 +27,8 @@ func checkMatrixT(M, Omega, Sigma *mx.DenseMatrix, n int) {
 	}
 }
 
-func MatrixT_PDF(M, Omega, Sigma *mx.DenseMatrix, n int) func(T *mx.DenseMatrix) (l float64) {
+// MatrixTPDF is matrix t distribution's pdf
+func MatrixTPDF(M, Omega, Sigma *mx.DenseMatrix, n int) func(T *mx.DenseMatrix) (l float64) {
 	checkMatrixT(M, Omega, Sigma, n)
 
 	nf := float64(n)
@@ -38,7 +39,7 @@ func MatrixT_PDF(M, Omega, Sigma *mx.DenseMatrix, n int) func(T *mx.DenseMatrix)
 
 	var norm float64 = 1
 
-	norm *= GammaPRatio(p, 0.5*(nf+mf+pf-1), 0.5*(nf+pf-1))
+	norm *= fn.GammaPRatio(p, 0.5*(nf+mf+pf-1), 0.5*(nf+pf-1))
 	norm *= math.Pow(math.Pi, -0.5*mf*pf)
 	norm *= math.Pow(Omega.Det(), -0.5*mf)
 	norm *= math.Pow(Sigma.Det(), -0.5*pf)
@@ -70,7 +71,8 @@ func MatrixT_PDF(M, Omega, Sigma *mx.DenseMatrix, n int) func(T *mx.DenseMatrix)
 	}
 }
 
-func MatrixT_LnPDF(M, Omega, Sigma *mx.DenseMatrix, n int) func(T *mx.DenseMatrix) (ll float64) {
+// MatrixTLnPDF is matrix t distribution's lnpdf
+func MatrixTLnPDF(M, Omega, Sigma *mx.DenseMatrix, n int) func(T *mx.DenseMatrix) (ll float64) {
 	checkMatrixT(M, Omega, Sigma, n)
 
 	nf := float64(n)
@@ -79,9 +81,9 @@ func MatrixT_LnPDF(M, Omega, Sigma *mx.DenseMatrix, n int) func(T *mx.DenseMatri
 	m := M.Cols()
 	mf := float64(m)
 
-	var norm float64 = 0
+	var norm float64
 
-	norm += LnGammaPRatio(p, 0.5*(nf+mf+pf-1), 0.5*(nf+pf-1))
+	norm += fn.LnGammaPRatio(p, 0.5*(nf+mf+pf-1), 0.5*(nf+pf-1))
 	norm += math.Pow(math.Pi, -0.5*mf*pf)
 	norm += math.Pow(Omega.Det(), -0.5*mf)
 	norm += math.Pow(Sigma.Det(), -0.5*pf)
@@ -113,6 +115,7 @@ func MatrixT_LnPDF(M, Omega, Sigma *mx.DenseMatrix, n int) func(T *mx.DenseMatri
 	}
 }
 
+// MatrixT is Matrix t distribution function
 func MatrixT(M, Omega, Sigma *mx.DenseMatrix, n int) func() (T *mx.DenseMatrix) {
 	checkMatrixT(M, Omega, Sigma, n)
 
@@ -157,6 +160,7 @@ func MatrixT(M, Omega, Sigma *mx.DenseMatrix, n int) func() (T *mx.DenseMatrix) 
 	}
 }
 
+// NextMatrixT return random value in matrix t distribution
 func NextMatrixT(M, Omega, Sigma *mx.DenseMatrix, n int) (T *mx.DenseMatrix) {
 	return MatrixT(M, Omega, Sigma, n)()
 }
